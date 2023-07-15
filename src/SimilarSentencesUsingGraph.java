@@ -20,14 +20,17 @@ public class SimilarSentencesUsingGraph implements ISimilarSentencesDS {
 
     @Override
     public List<String> getSentences(String sentence) {
-        List<List<String>> synonyms;
-        synchronized (graph) {
-            synonyms = Arrays.stream(sentence.split(" "))
-                    .map(graph::getAllReachableNodes).collect(Collectors.toList());
-        }
+        List<List<String>> synonyms = getSynonymsLists(sentence);
         List<String> similarSentences = new ArrayList<>();
         buildSimilarSentences(synonyms, new LinkedList<>(), similarSentences);
         return similarSentences.stream().filter(sentenceIter -> !sentenceIter.equals(sentence)).collect(Collectors.toList());
+    }
+
+    private List<List<String>> getSynonymsLists(String sentence) {
+        synchronized (graph) {
+            return Arrays.stream(sentence.split(" "))
+                    .map(graph::getAllReachableNodes).collect(Collectors.toList());
+        }
     }
 
     private void buildSimilarSentences(List<List<String>> synonyms, Queue<String> current, List<String> similarSentences) {
